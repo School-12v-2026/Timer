@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>Таймер с минути и секунди</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #222;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .timer-box {
+            background: #333;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 340px;
+        }
+
+        input {
+            width: 40%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            margin: 5px;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .start { background: #4CAF50; color: white; }
+        .stop  { background: #f44336; color: white; }
+
+        #countdown {
+            font-size: 32px;
+            margin-top: 15px;
+        }
+
+        #message {
+            margin-top: 10px;
+            font-size: 22px;
+            color: yellow;
+            display: none;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="timer-box">
+    <h2>⏰ Таймер</h2>
+
+    <div>
+        <input type="number" id="minutes" placeholder="Минути" min="0">
+        <input type="number" id="seconds" placeholder="Секунди" min="0" max="59">
+    </div>
+
+    <div>
+        <button class="start" onclick="startTimer()">Старт</button>
+        <button class="stop" onclick="stopTimer()">Спри</button>
+    </div>
+
+    <div id="countdown">00:00</div>
+    <div id="message">⏰ Времето изтече!</div>
+
+    <audio id="alarmSound">
+        <source src="https://www.soundjay.com/buttons/sounds/beep-07.mp3">
+    </audio>
+</div>
+
+<script>
+    let timer = null;
+    let timeLeft = 0;
+
+    function startTimer() {
+        if (timer !== null) return;
+
+        let minInput = document.getElementById("minutes");
+        let secInput = document.getElementById("seconds");
+
+        let minutes = parseInt(minInput.value) || 0;
+        let seconds = parseInt(secInput.value) || 0;
+
+        if (minutes === 0 && seconds === 0) {
+            alert("Въведи минути и/или секунди!");
+            return;
+        }
+
+        if (seconds > 59) {
+            alert("Секундите трябва да са между 0 и 59!");
+            return;
+        }
+
+        timeLeft = minutes * 60 + seconds;
+
+        minInput.disabled = true;
+        secInput.disabled = true;
+        document.getElementById("message").style.display = "none";
+
+        updateDisplay();
+
+        timer = setInterval(() => {
+            timeLeft--;
+            updateDisplay();
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                timer = null;
+                document.getElementById("alarmSound").play();
+                document.getElementById("message").style.display = "block";
+                minInput.disabled = false;
+                secInput.disabled = false;
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timer !== null) {
+            clearInterval(timer);
+            timer = null;
+        }
+
+        timeLeft = 0;
+        document.getElementById("countdown").textContent = "00:00";
+        document.getElementById("minutes").disabled = false;
+        document.getElementById("seconds").disabled = false;
+        document.getElementById("message").style.display = "none";
+    }
+
+    function updateDisplay() {
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+
+        document.getElementById("countdown").textContent =
+            String(mins).padStart(2, '0') + ":" +
+            String(secs).padStart(2, '0');
+    }
+</script>
+
+</body>
+</html>
